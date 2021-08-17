@@ -40,6 +40,7 @@
             loadMessages();
 
             $('#leave-btn').click(function(e) {
+                console.log('leaving conversation....');
                 e.preventDefault();
 
                 showWaiting('Leaving conversation...', '#leave-btn');
@@ -90,6 +91,8 @@
 
         function sendMessage() {
             var message = $('#message').val();
+
+            console.log('sending message');
 
             showWaiting('Sending reply...', '#send-msg-btn');
 

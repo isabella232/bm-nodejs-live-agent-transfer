@@ -55,17 +55,17 @@ guide and follow the instructions to create a Business Messages agent.
 ## Datastore schema for saving conversation history
 
 Thread:
-    * brandId - (string) The unique identifier for the brand.
-    * conversationId - (string) The unique identifier for the converastion between the user and business.
-    * displayName - (string) The name of the last entity that sent a message, either the user or the business.
-    * lastMessageText - (string) The last message sent or received.
-    * lastUpdated - (datetime) The date and time the last message was sent or received. 
-    * state - (string) Represents the state of the thread, managed by a bot, in queue for live agent, or manged by a live agent.
+* brandId - (string) The unique identifier for the brand.
+* conversationId - (string) The unique identifier for the converastion between the user and business.
+* displayName - (string) The name of the last entity that sent a message, either the user or the business.
+* lastMessageText - (string) The last message sent or received.
+* lastUpdated - (datetime) The date and time the last message was sent or received. 
+* state - (string) Represents the state of the thread, managed by a bot, in queue for live agent, or manged by a live agent.
 
 Message:
-    * conversationId - (string) The unique identifier for the converastion between the user and business.
-    * messageId - (string) The unique identifier for the message that was sent or received.
-    * displayName - (string) The name of the  entity that sent a message, either the user or the business.
-    * mssageText - (string) The message tetx sent or received.
-    * userType - (string) Who sent the message, the CRM or the user.
-    * createdDate - (datetime) The date and time the last message was sent or received. 
+* conversationId - (string) The unique identifier for the converastion between the user and business.
+* messageId - (string) The unique identifier for the message that was sent or received.
+* displayName - (string) The name of the  entity that sent a message, either the user or the business.
+* mssageText - (string) The message tetx sent or received.
+* userType - (string) Who sent the message, the CRM or the user.
+* createdDate - (datetime) The date and time the last message was sent or received. 

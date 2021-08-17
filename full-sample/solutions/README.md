@@ -1,6 +1,6 @@
 # BUSINESS MESSAGES: Live agent transfer
 
-This is the third step in a codelab demonstrating how to manage live agent transfers in a Business Messages conversation. The third step extends the second step by adding a web-based UI for a human agent to join and respond to inbound messages.
+This is the complete source in a codelab demonstrating how to manage live agent transfers in a Business Messages conversation. This sample demonstrates how to use a digital agent to initially response to inbound users, how to store conversation history, how to transfer control of the conversation to a live agent, and how to have a live agent respond via a web-based CRM.
 
 This sample relies on the [Business Messages Node.js client library](https://github.com/google-business-communications/nodejs-businessmessages) for sending messages to the Business Messages platform.
 
@@ -48,24 +48,24 @@ guide and follow the instructions to create a Business Messages agent.
     from the agent.
 
     Navigate to https://PROJECT_ID.appspot.com to view the list of conversation
-    threads, join a conversation, and respond using the simple CRM interface.
+    threads, join a conversation, and respond.
 
     See the [Test an agent](https://developers.google.com/business-communications/business-messages/guides/set-up/agent#test-agent) guide if you need help retrieving your test business URL.
 
 ## Datastore schema for saving conversation history
 
 Thread:
-    * brandId - (string) The unique identifier for the brand.
-    * conversationId - (string) The unique identifier for the converastion between the user and business.
-    * displayName - (string) The name of the last entity that sent a message, either the user or the business.
-    * lastMessageText - (string) The last message sent or received.
-    * lastUpdated - (datetime) The date and time the last message was sent or received. 
-    * state - (string) Represents the state of the thread, managed by a bot, in queue for live agent, or manged by a live agent.
+* brandId - (string) The unique identifier for the brand.
+* conversationId - (string) The unique identifier for the converastion between the user and business.
+* displayName - (string) The name of the last entity that sent a message, either the user or the business.
+* lastMessageText - (string) The last message sent or received.
+* lastUpdated - (datetime) The date and time the last message was sent or received. 
+* state - (string) Represents the state of the thread, managed by a bot, in queue for live agent, or manged by a live agent.
 
 Message:
-    * conversationId - (string) The unique identifier for the converastion between the user and business.
-    * messageId - (string) The unique identifier for the message that was sent or received.
-    * displayName - (string) The name of the  entity that sent a message, either the user or the business.
-    * mssageText - (string) The message tetx sent or received.
-    * userType - (string) Who sent the message, the CRM or the user.
-    * createdDate - (datetime) The date and time the last message was sent or received. 
+* conversationId - (string) The unique identifier for the converastion between the user and business.
+* messageId - (string) The unique identifier for the message that was sent or received.
+* displayName - (string) The name of the  entity that sent a message, either the user or the business.
+* mssageText - (string) The message tetx sent or received.
+* userType - (string) Who sent the message, the CRM or the user.
+* createdDate - (datetime) The date and time the last message was sent or received.

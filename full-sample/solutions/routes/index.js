@@ -84,14 +84,23 @@ router.post('/joinConversation', async function(req, res, next) {
   });
 });
 
-/* 
- * TODO: Create a '/leaveConversation' endpoint that does the following:
- * - Updates the thread to BOT_THREAD_STATE.
- * - Sends a REPRESENTATIVE_LEFT event.
- * - Sends a message to the thread informing the user that they are speaking to the echo bot again.
- * 
- * Hint: You can use the same methods that '/joinConversation' uses.
+/**
+ * Updates the thread state and sends a representative left signal to the user.
  */
+router.post('/leaveConversation', async function(req, res, next) {
+  console.log("Leaving conversation...");
+  
+  let conversationId = req.body.conversationId;
+
+  await changeThreadState(conversationId, BOT_THREAD_STATE, 'REPRESENTATIVE_LEFT');
+
+  storeAndSendResponse('You are now speaking with the Echo Bot',
+    conversationId, BOT_THREAD_STATE, 'BOT');
+
+  res.json({
+    'result': 'ok',
+  });
+});
 
 /**
  * Displays the messages for a thread.
@@ -227,7 +236,7 @@ async function changeThreadState(conversationId, threadState, eventType) {
 
       let authClient = await initCredentials();
 
-      // Create the payload for sending the event
+      // Create the payload for sending a typing started event
       let apiEventParams = {
         auth: authClient,
         parent: 'conversations/' + conversationId,
@@ -238,7 +247,7 @@ async function changeThreadState(conversationId, threadState, eventType) {
         eventId: uuidv4(),
       };
 
-      // Send the event
+      // Send the representative left event
       bmApi.conversations.events.create(apiEventParams, {}, () => {
         resolve();
       });

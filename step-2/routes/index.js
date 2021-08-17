@@ -77,7 +77,7 @@ router.get('/retrieveThreads', function(req, res, next) {
 router.post('/joinConversation', async function(req, res, next) {
   let conversationId = req.body.conversationId;
 
-  await changeThreadState(conversationId, LIVE_AGENT_THREAD_STATE, 'REPRESENTATIVE_JOINED');
+  // TODO: Update the thread state to LIVE_AGENT_THREAD_STATE and post a REPRESENTATIVE_JOINED event.
 
   res.json({
     'result': 'ok',
@@ -142,59 +142,14 @@ router.post('/callback', async function(req, res, next) {
     } else if (requestBody.userStatus !== undefined) {
       if (requestBody.userStatus.requestedLiveAgent !== undefined) {
         console.log('User requested transfer to live agent');
-
-        queueThreadForLiveAgent(conversationId);
+        
+        // TODO: Update the thread state to QUEUED_THREAD_STATE.
       }
     }
   });
 
   res.sendStatus(200);
 });
-
-/**
- * Updates the thread's state for a live agent and sends corresponding event
- * to the user through the Business Messages API.
- *
- * @param {string} conversationId The unique id for this user and agent.
- * @param {string} threadState The new state to assign to the thread.
- * @param {string} eventType The type of event to send as a representative
- */
-async function changeThreadState(conversationId, threadState, eventType) {
-  datastoreUtil.getMessageThread(conversationId, async function(thread) {
-    thread.state = threadState;
-
-    datastoreUtil.saveThread(thread);
-
-    let authClient = await initCredentials();
-
-    // Create the payload for sending a typing started event
-    let apiEventParams = {
-      auth: authClient,
-      parent: 'conversations/' + conversationId,
-      resource: {
-        eventType: eventType,
-        representative: getRepresentative('HUMAN'),
-      },
-      eventId: uuidv4(),
-    };
-
-    // Send the representative left event
-    bmApi.conversations.events.create(apiEventParams);
-  });
-}
-
-/**
- * Updates the thread's state to be queued for a live agent to join.
- *
- * @param {string} conversationId The unique id for this user and agent.
- */
-function queueThreadForLiveAgent(conversationId) {
-  datastoreUtil.getMessageThread(conversationId, (thread) => {
-    thread.state = QUEUED_THREAD_STATE;
-
-    datastoreUtil.saveThread(thread);
-  });
-}
 
 /**
  * Updates the thread, adds a new message and sends a response to the user.

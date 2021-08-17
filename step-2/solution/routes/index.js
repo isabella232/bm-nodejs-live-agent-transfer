@@ -42,8 +42,7 @@ const BUSINESS_NAME = 'Acme Retail';
 // Name of the CRM
 const CRM_NAME = 'The Simple CRM (Acme Retail)';
 
-// The possible states for who manages the conversation
-// on behalf of the business
+// The possible states for who manages the conversation on behalf of the business
 const BOT_THREAD_STATE = 'Bot';
 const QUEUED_THREAD_STATE = 'Queued';
 const LIVE_AGENT_THREAD_STATE = 'Live Agent';
@@ -57,8 +56,7 @@ router.get('/', function(req, res, next) {
 });
 
 /**
- * Retrieves list of all active and queued threads,
- * ordered by most recently updated.
+ * Retrieves list of all active and queued threads, ordered by most recently updated.
  */
 router.get('/retrieveThreads', function(req, res, next) {
   datastoreUtil.listMessageThreads((threads) => {
@@ -87,59 +85,17 @@ router.post('/joinConversation', async function(req, res, next) {
 });
 
 /**
- * Displays the messages for a thread.
- */
-router.get('/messages', function(req, res, next) {
-  let conversationId = req.query.conversationId;
-
-  datastoreUtil.getMessageThread(conversationId, (thread) => {
-    res.render('messages', {title: CRM_NAME, thread: thread});
-  });
-});
-
-/**
- * Retrieves list of all messages for a thread.
- */
-router.get('/retrieveMessages', function(req, res, next) {
-  let conversationId = req.query.conversationId;
-
-  datastoreUtil.listMessages(conversationId, (messages) => {
-    // Convert createdDate date and time field into a nicely formatted value
-    for (let i = 0; i < messages.length; i++) {
-      messages[i].createdDate = moment(messages[i].createdDate).fromNow();
-    }
-    res.json({
-      'messages': messages,
-    });
-  });
-});
-
-/**
- * Sends a message from the CRM to the targetted user.
- */
-router.post('/sendMessage', function(req, res, next) {
-  let message = req.body.message;
-  let conversationId = req.body.conversationId;
-
-  storeAndSendResponse(message, conversationId,
-    LIVE_AGENT_THREAD_STATE, 'HUMAN');
-
-  res.json({
-    'response': 'ok',
-  });
-});
-
-/**
  * The webhook callback method.
  */
-router.post('/callback', function(req, res, next) {
+router.post('/callback', async function(req, res, next) {
   let requestBody = req.body;
 
   // Extract the message payload parameters
   let conversationId = requestBody.conversationId;
   let messageId = requestBody.requestId;
   let agentName = requestBody.agent;
-  let brandId = agentName.substr(agentName.indexOf('brands/') + 7, agentName.indexOf('/agents') - 7);
+  let brandId = agentName.substr(agentName.indexOf('brands/') + 7,
+    agentName.indexOf('/agents') - 7);
   let displayName = requestBody.context.userInfo.displayName;
 
   // Log message parameters
@@ -153,8 +109,7 @@ router.post('/callback', function(req, res, next) {
       currentThreadState = thread.state;
     }
 
-    // Initialize object details that will be used
-    // to create thread and message records
+    // Initialize object details that will be used to create thread and message records
     let threadAndMessage = {
       messageId: messageId,
       userType: 'User',
@@ -174,11 +129,7 @@ router.post('/callback', function(req, res, next) {
       threadAndMessage.message = message;
 
       await storeMessage(threadAndMessage);
-
-      // Only echo response if the bot has control of the conversation
-      if (currentThreadState === BOT_THREAD_STATE) {
-        storeAndSendResponse(message, conversationId, currentThreadState, 'BOT');
-      }
+      storeAndSendResponse(message, conversationId, currentThreadState, 'BOT');
     } else if (requestBody.suggestionResponse !== undefined) {
       let message = requestBody.suggestionResponse.text;
 
@@ -187,11 +138,7 @@ router.post('/callback', function(req, res, next) {
       threadAndMessage.message = message;
 
       await storeMessage(threadAndMessage);
-
-      // Only echo response if the bot has control of the conversation
-      if (currentThreadState === BOT_THREAD_STATE) {
-        storeAndSendResponse(message, conversationId, currentThreadState, 'BOT');
-      }
+      storeAndSendResponse(message, conversationId, currentThreadState, 'BOT');
     } else if (requestBody.userStatus !== undefined) {
       if (requestBody.userStatus.requestedLiveAgent !== undefined) {
         console.log('User requested transfer to live agent');
@@ -213,30 +160,26 @@ router.post('/callback', function(req, res, next) {
  * @param {string} eventType The type of event to send as a representative
  */
 async function changeThreadState(conversationId, threadState, eventType) {
-  return new Promise((resolve, reject) => {
-    datastoreUtil.getMessageThread(conversationId, async function(thread) {
-      thread.state = threadState;
+  datastoreUtil.getMessageThread(conversationId, async function(thread) {
+    thread.state = threadState;
 
-      datastoreUtil.saveThread(thread);
+    datastoreUtil.saveThread(thread);
 
-      let authClient = await initCredentials();
+    let authClient = await initCredentials();
 
-      // Create the payload for sending a typing started event
-      let apiEventParams = {
-        auth: authClient,
-        parent: 'conversations/' + conversationId,
-        resource: {
-          eventType: eventType,
-          representative: getRepresentative('HUMAN'),
-        },
-        eventId: uuidv4(),
-      };
+    // Create the payload for sending a typing started event
+    let apiEventParams = {
+      auth: authClient,
+      parent: 'conversations/' + conversationId,
+      resource: {
+        eventType: eventType,
+        representative: getRepresentative('HUMAN'),
+      },
+      eventId: uuidv4(),
+    };
 
-      // Send the representative left event
-      bmApi.conversations.events.create(apiEventParams, {}, () => {
-        resolve();
-      });
-    });
+    // Send the representative left event
+    bmApi.conversations.events.create(apiEventParams);
   });
 }
 
@@ -301,6 +244,7 @@ async function storeAndSendResponse(message, conversationId, threadState, repres
  * @param {string} params.brandId The unique identifier for the business.
  * @param {string} params.conversationId The unique id for this user and agent.
  * @param {string} params.state Represents who is managing the conversation for the CRM.
+ * @return A Promise.
  */
 async function storeMessage(threadAndMessage) {
   return new Promise((resolve, reject) => {
