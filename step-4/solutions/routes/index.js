@@ -236,7 +236,7 @@ async function changeThreadState(conversationId, threadState, eventType) {
 
       let authClient = await initCredentials();
 
-      // Create the payload for sending a typing started event
+      // Create the payload for sending an event
       let apiEventParams = {
         auth: authClient,
         parent: 'conversations/' + conversationId,
@@ -247,8 +247,8 @@ async function changeThreadState(conversationId, threadState, eventType) {
         eventId: uuidv4(),
       };
 
-      // Send the representative left event
-      bmApi.conversations.events.create(apiEventParams, {}, () => {
+      // Send the event
+      bmApi.conversations.events.create(apiEventParams, {auth: authClient}, () => {
         resolve();
       });
     });

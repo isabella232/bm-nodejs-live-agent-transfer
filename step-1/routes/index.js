@@ -36,7 +36,7 @@ const scopes = [
 const datastoreUtil = require('../libs/datastore_util');
 
 // Name of the brand
-const BUSINESS_NAME = 'Acme Retail';
+const BUSINESS_NAME = 'Slice Pizza';
 
 // The value for who manages the conversation on behalf of the business
 const BOT_THREAD_STATE = 'Bot';

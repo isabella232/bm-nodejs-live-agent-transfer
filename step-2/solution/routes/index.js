@@ -37,10 +37,10 @@ const scopes = [
 const datastoreUtil = require('../libs/datastore_util');
 
 // Name of the brand
-const BUSINESS_NAME = 'Acme Retail';
+const BUSINESS_NAME = 'Slice Pizza';
 
 // Name of the CRM
-const CRM_NAME = 'The Simple CRM (Acme Retail)';
+const CRM_NAME = 'The Simple CRM (Slice Pizza)';
 
 // The possible states for who manages the conversation on behalf of the business
 const BOT_THREAD_STATE = 'Bot';
@@ -160,26 +160,30 @@ router.post('/callback', async function(req, res, next) {
  * @param {string} eventType The type of event to send as a representative
  */
 async function changeThreadState(conversationId, threadState, eventType) {
-  datastoreUtil.getMessageThread(conversationId, async function(thread) {
-    thread.state = threadState;
+  return new Promise((resolve, reject) => {
+    datastoreUtil.getMessageThread(conversationId, async function(thread) {
+      thread.state = threadState;
 
-    datastoreUtil.saveThread(thread);
+      datastoreUtil.saveThread(thread);
 
-    let authClient = await initCredentials();
+      let authClient = await initCredentials();
 
-    // Create the payload for sending a typing started event
-    let apiEventParams = {
-      auth: authClient,
-      parent: 'conversations/' + conversationId,
-      resource: {
-        eventType: eventType,
-        representative: getRepresentative('HUMAN'),
-      },
-      eventId: uuidv4(),
-    };
+      // Create the payload for sending an event
+      let apiEventParams = {
+        auth: authClient,
+        parent: 'conversations/' + conversationId,
+        resource: {
+          eventType: eventType,
+          representative: getRepresentative('HUMAN'),
+        },
+        eventId: uuidv4(),
+      };
 
-    // Send the representative left event
-    bmApi.conversations.events.create(apiEventParams);
+      // Send the event
+      bmApi.conversations.events.create(apiEventParams, {auth: authClient}, () => {
+        resolve();
+      });
+    });
   });
 }
 

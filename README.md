@@ -39,7 +39,7 @@ Each sample has a `README.md` with instructions for running the sample.
 | [step-1](https://github.com/google-business-communications/bm-nodejs-live-agent-transfer/tree/master/step-1) | Base code for an Echo Bot that saves all sent and received messages to a Google Cloud Datastore. |
 | [step-2](https://github.com/google-business-communications/bm-nodejs-live-agent-transfer/tree/master/step-2) | Extension of step-1 that adds a web-based UI to view conversations. |
 | [step-3](https://github.com/google-business-communications/bm-nodejs-live-agent-transfer/tree/master/step-3) | Extension of step-2 that adds a web-based UI for responding to user messages. |
-| [full_sample](https://github.com/google-business-communications/bm-nodejs-live-agent-transfer/tree/master/full-sample) | Complete solution with bot to live agent transfer and a simple CRM. |
+| [step-4](https://github.com/google-business-communications/bm-nodejs-live-agent-transfer/tree/master/step-4) | Extension of step-3 that adds live agent handover back to a bot. |
 
 ## Learn more
 

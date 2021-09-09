@@ -1,0 +1,1 @@
+Add your Business Messages project service account key credentials to this directory.

@@ -37,10 +37,10 @@ const scopes = [
 const datastoreUtil = require('../libs/datastore_util');
 
 // Name of the brand
-const BUSINESS_NAME = 'Acme Retail';
+const BUSINESS_NAME = 'Slice Pizza';
 
 // Name of the CRM
-const CRM_NAME = 'The Simple CRM (Acme Retail)';
+const CRM_NAME = 'The Simple CRM (Slice Pizza)';
 
 // The possible states for who manages the conversation on behalf of the business
 const BOT_THREAD_STATE = 'Bot';
@@ -77,7 +77,7 @@ router.get('/retrieveThreads', function(req, res, next) {
 router.post('/joinConversation', async function(req, res, next) {
   let conversationId = req.body.conversationId;
 
-  // TODO: Update the thread state to LIVE_AGENT_THREAD_STATE and post a REPRESENTATIVE_JOINED event.
+  await changeThreadState(conversationId, LIVE_AGENT_THREAD_STATE, 'REPRESENTATIVE_JOINED');
 
   res.json({
     'result': 'ok',
@@ -142,14 +142,27 @@ router.post('/callback', async function(req, res, next) {
     } else if (requestBody.userStatus !== undefined) {
       if (requestBody.userStatus.requestedLiveAgent !== undefined) {
         console.log('User requested transfer to live agent');
-        
-        // TODO: Update the thread state to QUEUED_THREAD_STATE.
+
+        queueThreadForLiveAgent(conversationId);
       }
     }
   });
 
   res.sendStatus(200);
 });
+
+/**
+ * Updates the thread's state to be queued for a live agent to join.
+ *
+ * @param {string} conversationId The unique id for this user and agent.
+ */
+function queueThreadForLiveAgent(conversationId) {
+  datastoreUtil.getMessageThread(conversationId, (thread) => {
+    thread.state = QUEUED_THREAD_STATE;
+
+    datastoreUtil.saveThread(thread);
+  });
+}
 
 /**
  * Updates the thread, adds a new message and sends a response to the user.
@@ -185,6 +198,42 @@ async function storeAndSendResponse(message, conversationId, threadState, repres
       },
     ],
   }, conversationId);
+}
+
+/**
+ * Updates the thread's state for a live agent and sends corresponding event
+ * to the user through the Business Messages API.
+ *
+ * @param {string} conversationId The unique id for this user and agent.
+ * @param {string} threadState The new state to assign to the thread.
+ * @param {string} eventType The type of event to send as a representative
+ */
+async function changeThreadState(conversationId, threadState, eventType) {
+  return new Promise((resolve, reject) => {
+    datastoreUtil.getMessageThread(conversationId, async function(thread) {
+      thread.state = threadState;
+
+      datastoreUtil.saveThread(thread);
+
+      let authClient = await initCredentials();
+
+      // Create the payload for sending an event
+      let apiEventParams = {
+        auth: authClient,
+        parent: 'conversations/' + conversationId,
+        resource: {
+          eventType: eventType,
+          representative: getRepresentative('HUMAN'),
+        },
+        eventId: uuidv4(),
+      };
+
+      // Send the event
+      bmApi.conversations.events.create(apiEventParams, {auth: authClient}, () => {
+        resolve();
+      });
+    });
+  });
 }
 
 /**
