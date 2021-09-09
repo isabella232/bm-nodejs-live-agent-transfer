@@ -1,6 +1,6 @@
 # BUSINESS MESSAGES: Live agent transfer
 
-This is the complete source in a codelab demonstrating how to manage live agent transfers in a Business Messages conversation. This sample demonstrates how to use a digital agent to initially response to inbound users, how to store conversation history, how to transfer control of the conversation to a live agent, and how to have a live agent respond via a web-based CRM.
+This is the fourth step in a codelab demonstrating how to manage live agent transfers in a Business Messages conversation. The fourth step extends the third step by adding support for a human agent to leave a conversation and handoff the conversation to a bot.
 
 This sample relies on the [Business Messages Node.js client library](https://github.com/google-business-communications/nodejs-businessmessages) for sending messages to the Business Messages platform.
 
