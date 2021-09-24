@@ -25,8 +25,7 @@ You must have the following software installed on your machine:
 1.  Enable the [Cloud Datastore APIs](https://cloud.google.com/datastore/docs/activate) for your project.
 
 ## Codelab tutorial
-See our [codelab](https://codelabs.developers.google.com/) tutorial for
-detailed instructions on how to build this sample and deploy it to Google Cloud App
+See our [codelab](https://developers.google.com/business-communications/business-messages/codelabs/live-agent-transfer) tutorial for detailed instructions on how to build this sample and deploy it to Google Cloud App
 Engine. Once deployed you can interact with the conversational surface through
 Business Messages.
 
